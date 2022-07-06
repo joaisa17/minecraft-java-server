@@ -5,13 +5,16 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/joaisa17/minecraft-java-server.git"
+    "url": "https://github.com/joaisa17/minecraft-java-server.git"
   },
   "scripts": {
     "test": "ts-node src/test.ts",
     "build": "tsc"
   },
-  "author": "IgnWombat",
+  "author": {
+    "name": "Joakim Isaksen",
+    "email": "pvpdaimer@gmail.com"
+  },
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.0.0",
