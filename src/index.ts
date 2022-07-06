@@ -16,3 +16,7 @@ export {
     ServerConfig,
     EventPatterns
 } from './config';
+
+export {
+    ServerProperties
+} from './properties';
