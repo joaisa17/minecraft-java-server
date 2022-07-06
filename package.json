@@ -3,6 +3,10 @@
   "version": "1.0.1",
   "description": "Gives the ability to manage your Minecraft Java Edition server, using plain javascript/typescript. Inspired by @scriptserver/core",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/joaisa17/minecraft-java-server.git"
+  },
   "scripts": {
     "test": "ts-node src/test.ts",
     "build": "tsc"
