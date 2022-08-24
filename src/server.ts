@@ -1,9 +1,13 @@
-import { spawn } from 'child_process';
-import eventEmitter from './emitter';
-import { ChildProcess } from 'node:child_process';
-import { EventPatterns, ServerConfig, LoadDefaults } from './config';
+import { spawn, ChildProcess } from 'node:child_process';
+import { existsSync } from 'node:fs';
+
 import { Rcon } from './rcon';
+import eventEmitter from './emitter';
+
+import { EventPatterns, ServerConfig, LoadDefaults } from './config';
+
 import loadProperties from './properties';
+import loadEula from './eula';
 
 export const DefaultConfig: ServerConfig = {
     jar: 'server.jar',
@@ -33,9 +37,12 @@ export const DefaultConfig: ServerConfig = {
 
 interface Events {
     console: string;
+
     start: void;
     stop: void;
     crash: void;
+
+    eula: string;
 }
 
 export class MinecraftServer {
@@ -49,17 +56,29 @@ export class MinecraftServer {
 
     public start() {
         if (this.process) throw new Error('Server already running');
+
+        loadEula(this.config);
         loadProperties(this.config);
 
-        this.on('start', () => { this.rcon?.connect() });
-        this.on('stop', () => { this.rcon?.disconnect() });
+        this.on('start', () => { this.rcon?.connect(); });
+
+        this.on('stop', () => {
+            this.rcon?.disconnect();
+            this.process?.kill('SIGKILL');
+        });
+
+        this.on('crash', () => {
+            this.rcon?.disconnect();
+            this.process?.kill('SIGKILL');
+        });
 
         this.process = spawn(
             this.config.executable,
             [...this.config.args, '-jar', this.config.jar, 'nogui'],
             {
                 cwd: this.config.path,
-                stdio: ['pipe', 'pipe', 'pipe']
+                stdio: ['pipe', 'pipe', 'pipe'],
+                detached: false
             }
         );
 
@@ -78,13 +97,13 @@ export class MinecraftServer {
                 .forEach(msg => this.emitter.emit('console', msg));
         });
 
-        process.on('exit', () => { this.stop() });
-        this.process.on('exit', () => { this.stop() });
+        process.on('exit', () => { this.stop(); });
+        this.process.on('exit', () => { this.stop(); });
     }
 
     public stop() {
-        this.process?.kill();
-        this.process = undefined;
+        this.send('stop')
+        .catch(() => this.process?.kill());
     }
 
     public send(msg: string) {
@@ -96,9 +115,13 @@ export class MinecraftServer {
         config.eventPatterns ??= EventPatterns[config.type || 'vanilla'] || EventPatterns.vanilla;
         this.config = LoadDefaults<ServerConfig>(config, DefaultConfig);
 
+        if (!existsSync(this.config.path)) throw new Error(`Path '${this.config.path}' does not exist`);
+        if (!existsSync(`${this.config.path}/${this.config.jar}`)) throw new Error(`Jarfile '${this.config.jar}' does not exist`);
+
         this.rcon = new Rcon(this.config.rcon);
         
         const eventPatterns = this.config.eventPatterns;
+
         this.emitter.on('console', msg => {
             Object.keys(eventPatterns).forEach((key: keyof Events) => {
                 if (msg.match(eventPatterns[key])) {
@@ -106,7 +129,5 @@ export class MinecraftServer {
                 }
             });
         });
-
-        console.log(this.config);
     }
 }

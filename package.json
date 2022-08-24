@@ -1,6 +1,6 @@
 {
   "name": "minecraft-java-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Gives the ability to manage your Minecraft Java Edition server, using plain javascript/typescript. Inspired by @scriptserver/core",
   "keywords": ["minecraft", "server", "wrapper", "java", "mojang"],
   "main": "dist/index.js",

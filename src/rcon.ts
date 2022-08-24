@@ -1,5 +1,5 @@
 import eventEmitter from './emitter';
-import Net, { Socket} from 'net';
+import Net, { Socket } from 'node:net';
 
 import { RconConfig, LoadDefaults } from './config';
 import { DefaultConfig } from './server';

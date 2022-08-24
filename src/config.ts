@@ -3,7 +3,9 @@ import { ServerProperties } from './properties';
 interface IEventPatterns {
     start: RegExp;
     stop: RegExp;
+
     crash: RegExp;
+    eula: RegExp;
 }
 
 export interface RconConfig {
@@ -38,13 +40,19 @@ export const EventPatterns: Record<string, IEventPatterns> = {
     vanilla: {
         start: /^\[.+?\]: Done/,
         stop: /^\[.+?\]: ThreadedAnvilChunkStorage: All dimensions are saved/,
-        crash: /Crashed/
+
+        crash: /^\[.+? ERROR\]: (Exception stopping the server)|(Encountered an unexpected exception)/,
+
+        eula: /^\[.+?\]: You need to agree to the EULA in order to run the server. Go to eula.txt for more info./
     },
 
     paper: {
         start: /^\[.+?\]: Done/,
         stop: /^\[.+?\]: ThreadedAnvilChunkStorage: All dimensions are saved/,
-        crash: /Paper Crashed/
+
+        crash: /^\[.+? ERROR\]: (Exception stopping the server)|(Encountered an unexpected exception)/,
+
+        eula: /^\[.+?\]: You need to agree to the EULA in order to run the server. Go to eula.txt for more info./
     }
 }
 
